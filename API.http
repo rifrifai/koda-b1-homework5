@@ -1,0 +1,131 @@
+@urlBase = http://localhost:5163/api
+
+# CATEGORIES
+
+GET {{urlBase}}/categories
+
+GET {{urlBase}}/categories/1
+
+# @name createCategory
+POST {{urlBase}}/categories
+Content-Type: application/json
+
+{
+	"name": "Snack"
+}
+
+### Ubah kategori (pakai id dari kategori yang baru dibuat di atas)
+@newCategoryId = {{createCategory.response.body.$.id}}
+
+PUT {{urlBase}}/categories/{{newCategoryId}}
+Content-Type: application/json
+
+{
+	"name": "Camilan"
+}
+
+### Hapus kategori (kategori baru tadi, masih kosong jadi bisa dihapus)
+DELETE {{urlBase}}/categories/{{newCategoryId}}
+
+
+# MENUS
+GET {{urlBase}}/menus
+
+GET {{urlBase}}/menus/1
+
+GET {{urlBase}}/menus?keyword=cheese
+
+GET {{urlBase}}/menus?categoryId=1
+
+GET {{urlBase}}/menus?sort=price_asc
+
+GET {{urlBase}}/menus?sort=price_desc
+
+GET {{urlBase}}/menus?keyword=burger&categoryId=1&sort=price_desc
+
+# @name createMenu
+POST {{urlBase}}/menus
+Content-Type: application/json
+
+{
+	"name": "Mushroom Burger",
+	"price": 32000,
+	"stock": 10,
+	"categoryId": 1
+}
+
+### Ubah menu (pakai id dari menu yang baru dibuat di atas)
+@newMenuId = {{createMenu.response.body.$.id}}
+
+PUT {{urlBase}}/menus/{{newMenuId}}
+Content-Type: application/json
+
+{
+	"name": "Mushroom Burger",
+	"price": 35000,
+	"stock": 8,
+	"categoryId": 1
+}
+
+DELETE {{urlBase}}/menus/{{newMenuId}}
+
+
+# TES ERROR
+
+### 400 - nama kosong
+POST {{urlBase}}/categories
+Content-Type: application/json
+
+{
+	"name": ""
+}
+
+### 400 - harga 0 dan stok negatif
+POST {{urlBase}}/menus
+Content-Type: application/json
+
+{
+	"name": "Menu Salah",
+	"price": 0,
+	"stock": -5,
+	"categoryId": 1
+}
+
+### 404 - kategori tidak ada
+GET {{urlBase}}/categories/999
+
+### 404 - menu tidak ada
+GET {{urlBase}}/menus/999
+
+### 404 - menu dengan categoryId yang tidak ada
+POST {{urlBase}}/menus
+Content-Type: application/json
+
+{
+	"name": "Menu Hantu",
+	"price": 10000,
+	"stock": 5,
+	"categoryId": 999
+}
+
+### 409 - nama kategori kembar
+POST {{urlBase}}/categories
+Content-Type: application/json
+
+{
+	"name": "Burger"
+}
+
+### 409 - nama menu kembar
+POST {{urlBase}}/menus
+Content-Type: application/json
+
+{
+	"name": "Es Teh",
+	"price": 7000,
+	"stock": 10,
+	"categoryId": 3
+}
+
+### 409 - hapus kategori yang masih punya menu
+DELETE {{urlBase}}/categories/1
